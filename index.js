@@ -1,74 +1,85 @@
+#! /usr/bin/env node
 import inquirer from "inquirer";
 import chalk from "chalk";
 let todos = [];
 let condition = true;
 //print welcome message
 console.log(chalk.magenta.bold("\n \t Welcome To Todo-List Application\n"));
-while (condition) {
-    let todoQuestion = await inquirer.prompt([
+let main = async () => {
+    while (condition) {
+        let option = await inquirer.prompt([
+            {
+                name: "choice",
+                type: "list",
+                message: chalk.yellow("What would you like to do?\n"),
+                choices: ["Add Task", "Delete task", "Update Task", "View Todo-List", "Exit"],
+            },
+        ]);
+        if (option.choice === "Add Task") {
+            await addTask();
+        }
+        else if (option.choice === "Delete task") {
+            await deleteTask();
+        }
+        else if (option.choice === "Update Task") {
+            await updateTask();
+        }
+        else if (option.choice === "View Todo-List") {
+            await viewTask();
+        }
+        else if (option.choice === "Exit") {
+            condition = false;
+        }
+    }
+};
+// Function to add new Todo-List Task
+let addTask = async () => {
+    let newtask = await inquirer.prompt([
         {
-            name: "firstQuestion",
-            type: "list",
-            message: chalk.green("What would you like to do in your To Do List\n"),
-            choices: ["Add", "Delete", "Show List", "update", "Exit"],
+            name: "task",
+            type: "input",
+            message: "Enter your new task",
         },
-        // {
-        //   name: "secondQuestion",
-        //   type: "confirm",
-        //   message: "Do you want to add more Todos?",
-        //   default: "true",
-        // }    
     ]);
-    if (todoQuestion.firstQuestion === "Exit") {
-        condition = false;
-    }
-    else if (todoQuestion.firstQuestion === "Show List") {
-        // let showListInput = await inquirer.prompt([
-        //   {
-        //     name: "showList",
-        //     type: "list",
-        //     message: "Your To Do List",
-        //     choices: todos,
-        //   },
-        // ]);
-        console.log("Current Tasks:");
-        todos.forEach((todos, index) => {
-            console.log(`${index + 1}: ${todos}`);
-        });
-        console.log(""); // Add a blank line for separation
-    }
-    else if (todoQuestion.firstQuestion === "Delete") {
-        console.log("Deleted last value");
-        todos.pop();
-        console.log(todos);
-    }
-    else if (todoQuestion.firstQuestion === "update") {
-        let updateTaskInput = await inquirer.prompt([
-            {
-                name: "updateTask",
-                type: "input",
-                message: "Enter your task",
-            },
-        ]);
-        console.log(todos);
-        todos.pop();
-        todos.push(updateTaskInput.updateTask);
-        console.log(todos);
-        console.log("Updated");
-    }
-    else if (todoQuestion.firstQuestion === "Add") {
-        let addTaskInput = await inquirer.prompt([
-            {
-                name: "addTask",
-                type: "input",
-                message: "Enter your task",
-            },
-        ]);
-        todos.push(addTaskInput.addTask);
-        console.log(`${addTaskInput.addTask} added successfully into the list.`);
-        console.log(todos) + "\n";
-    }
-    //todos.push(todoQuestion.firstQuestion);
-    //condition = todoQuestion.secondQuestion;
-    //console.log(todos);
-}
+    todos.push(newtask.task);
+    console.log(`\n ${newtask.task} added successfully in To-Do-List the list.`);
+};
+// Function to view all Todo-List Tasks
+let viewTask = () => {
+    console.log("\nYour To-Do-List:");
+    todos.forEach((task, index) => {
+        console.log(`${index + 1}: ${task}`);
+    });
+};
+// Function to delete Todo-List Task
+let deleteTask = async () => {
+    await viewTask();
+    let taskIndex = await inquirer.prompt([
+        {
+            name: "index",
+            type: "number",
+            message: "Enter the index number to delete",
+        },
+    ]);
+    let deletedTask = todos.splice(taskIndex.index - 1, 1);
+    console.log(`\n${deletedTask} This Task deleted successfully from the list.`);
+};
+// Function to update Todo-List Task
+let updateTask = async () => {
+    await viewTask();
+    let updateTaskIndex = await inquirer.prompt([
+        {
+            name: "index",
+            type: "number",
+            message: "Enter the index number of the Task you want to update :",
+        },
+        {
+            name: "newTask",
+            type: "input",
+            message: "Enter the updated task",
+        },
+    ]);
+    todos[updateTaskIndex.index - 1] = updateTaskIndex.newTask;
+    console.log(`\n${updateTaskIndex.index} updated successfully [For updated list Check option: "View Todo-List"].`);
+};
+main();
